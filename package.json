@@ -1,0 +1,22 @@
+{
+  "author": "Edison E. Abreu <dinho.abreu@gmail.com>",
+  "name": "codes",
+  "description": "Node.js iconv bindings - Streamable, fast and lightweight",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:dinhoabreu/codes.git"
+  },
+  "main": "lib/index.js",
+	"scripts": {
+		"prepublish": "node-waf distclean",
+		"preinstall": "node-waf distclean",
+		"install": "node-waf configure build"
+	},
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "0.6.x"
+  }
+}
