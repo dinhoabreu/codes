@@ -14,7 +14,7 @@ vows.describe('Convert charset by Codes').addBatch({
 		'without TRANSLIT': {
 			topic: function () {
 				var options = {
-					from: 'utf8',
+					from: 'utf-8',
 					to: 'ascii'
 				};
 				return iconv.createStream(options);
@@ -42,7 +42,7 @@ vows.describe('Convert charset by Codes').addBatch({
 		'with TRANSLIT': {
 			topic: function () {
 				var options = {
-					from: 'utf8',
+					from: 'utf-8',
 					to: 'ascii',
 					option: iconv.TRANSLIT
 				};
@@ -73,7 +73,7 @@ vows.describe('Convert charset by Codes').addBatch({
 		'without TRANSLIT': {
 			topic: function () {
 				var options = {
-					from: 'utf8',
+					from: 'utf-8',
 					to: 'latin1'
 				};
 				return iconv.createStream(options);
@@ -101,7 +101,7 @@ vows.describe('Convert charset by Codes').addBatch({
 		'with TRANSLIT': {
 			topic: function () {
 				var options = {
-					from: 'utf8',
+					from: 'utf-8',
 					to: 'latin1',
 					option: iconv.TRANSLIT
 				};

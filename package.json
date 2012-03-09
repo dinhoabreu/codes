@@ -9,8 +9,8 @@
   },
   "main": "lib/index.js",
 	"scripts": {
-		"prepublish": "node-waf distclean",
-		"preinstall": "node-waf distclean",
+		"prepublish": "node-waf distclean && rm -rf deps/lib*",
+		"preinstall": "node-waf distclean && ./deps.sh",
 		"install": "node-waf configure build",
 		"test": "vows --spec test/index.js"
 	},
