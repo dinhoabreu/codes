@@ -11,6 +11,7 @@ using namespace v8;
 using namespace node;
 
 static Persistent<String> push_sym;
+static Persistent<String> touppercase_sym;
 static Persistent<String> convert_sym;
 static Persistent<String> iconv_sym;
 static Persistent<String> canonicalize_sym;
@@ -57,6 +58,7 @@ class Iconv {
 			HandleScope scope;
 
   			push_sym = Persistent<String>::New(String::NewSymbol("push"));
+  			touppercase_sym = Persistent<String>::New(String::NewSymbol("toUpperCase"));
   			convert_sym = Persistent<String>::New(String::NewSymbol("convert"));
   			iconv_sym = Persistent<String>::New(String::NewSymbol("Iconv"));
   			canonicalize_sym = Persistent<String>::New(String::NewSymbol("canonicalize"));
@@ -131,8 +133,11 @@ class Iconv {
 
 			if (!args[0]->IsString())
 				return ThrowException(Exception::Error(String::New("First parameter must be a string code")));
-			Handle<String> code = args[0]->ToString();
-			String::AsciiValue acode(code);
+			Local<Value> argv[0];
+			Handle<Object> code = args[0]->ToObject();
+			Local<Function> touppercase = Local<Function>::Cast(code->Get(touppercase_sym));
+			Handle<Value> codeuc = touppercase->Call(code, 0, argv);
+			String::AsciiValue acode(codeuc);
 			Handle<String> code_ = String::New(iconv_canonicalize(*acode));
 			return scope.Close(code_);
 		}
