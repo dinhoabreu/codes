@@ -57,15 +57,15 @@ class Iconv {
 		static void Initialize(Handle<Object> target) {
 			HandleScope scope;
 
-  			push_sym = Persistent<String>::New(String::NewSymbol("push"));
-  			touppercase_sym = Persistent<String>::New(String::NewSymbol("toUpperCase"));
-  			convert_sym = Persistent<String>::New(String::NewSymbol("convert"));
-  			iconv_sym = Persistent<String>::New(String::NewSymbol("Iconv"));
-  			canonicalize_sym = Persistent<String>::New(String::NewSymbol("canonicalize"));
-  			encodings_sym = Persistent<String>::New(String::NewSymbol("encodings"));
+  		push_sym = Persistent<String>::New(String::NewSymbol("push"));
+  		touppercase_sym = Persistent<String>::New(String::NewSymbol("toUpperCase"));
+  		convert_sym = Persistent<String>::New(String::NewSymbol("convert"));
+  		iconv_sym = Persistent<String>::New(String::NewSymbol("Iconv"));
+  		canonicalize_sym = Persistent<String>::New(String::NewSymbol("canonicalize"));
+  		encodings_sym = Persistent<String>::New(String::NewSymbol("encodings"));
 
-			leftBytesIn_sym = Persistent<String>::New(String::NewSymbol("leftBytesIn"));
-			leftBytesOut_sym = Persistent<String>::New(String::NewSymbol("leftBytesOut"));
+			offsetIn_sym = Persistent<String>::New(String::NewSymbol("offsetIn"));
+			offsetOut_sym = Persistent<String>::New(String::NewSymbol("offsetOut"));
 			code_sym = Persistent<String>::New(String::NewSymbol("code"));
 			errno_sym = Persistent<String>::New(String::NewSymbol("errno"));
 			error_sym = Persistent<String>::New(String::NewSymbol("error"));
@@ -160,13 +160,15 @@ class Iconv {
 			Local<Object> target_obj = args[1]->ToObject();
 			char *source_data = Buffer::Data(source_obj);
 			size_t source_length = Buffer::Length(source_obj);
+			size_t source_left = source_length;
 			char *target_data = Buffer::Data(target_obj);
 			size_t target_length = Buffer::Length(target_obj);
-			size_t r = ic->convert(&source_data, &source_length, &target_data, &target_length);
+			size_t target_left = target_length;
+			size_t r = ic->convert(&source_data, &source_left, &target_data, &target_left);
 
 			Local<Object> obj = Object::New();
-			obj->Set(leftBytesIn_sym, Integer::NewFromUnsigned(source_length));
-			obj->Set(leftBytesOut_sym, Integer::NewFromUnsigned(target_length));
+			obj->Set(offsetIn_sym, Integer::NewFromUnsigned(source_length - source_left));
+			obj->Set(offsetOut_sym, Integer::NewFromUnsigned(target_length - target_left));
 			obj->Set(code_sym, Integer::New(r));
 			if (r == -1) {
 				obj->Set(error_sym, String::New(strerror(errno)));
@@ -184,8 +186,8 @@ class Iconv {
 			return scope.Close(obj);
 		}
 		static Persistent<FunctionTemplate> constructor_template;
-		static Persistent<String> leftBytesIn_sym;
-		static Persistent<String> leftBytesOut_sym;
+		static Persistent<String> offsetIn_sym;
+		static Persistent<String> offsetOut_sym;
 		static Persistent<String> code_sym;
 		static Persistent<String> errno_sym;
 		static Persistent<String> error_sym;
@@ -194,8 +196,8 @@ class Iconv {
 };
 
 Persistent<FunctionTemplate> Iconv::constructor_template;
-Persistent<String> Iconv::leftBytesIn_sym;
-Persistent<String> Iconv::leftBytesOut_sym;
+Persistent<String> Iconv::offsetIn_sym;
+Persistent<String> Iconv::offsetOut_sym;
 Persistent<String> Iconv::code_sym;
 Persistent<String> Iconv::errno_sym;
 Persistent<String> Iconv::error_sym;
@@ -203,4 +205,4 @@ Persistent<String> Iconv::error_sym;
 void init(Handle<Object> target) {
 	Iconv::Initialize(target);
 }
-NODE_MODULE(iconv_binding, init)
+NODE_MODULE(iconv, init)

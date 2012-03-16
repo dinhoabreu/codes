@@ -1,23 +1,21 @@
-var bind = require('../build/Release/iconv_binding');
+var bind = require('./build/Release/iconv');
 var stream = require('stream');
 var util = require('util');
 
-function create(options) {
-	var from = options.from || 'UTF-8',
-			to = options.to,
-			size = options.size || 8192,
+function create(to, from, options) {
+	var from = from || 'UTF-8',
+			to = to.split('//'),
+			size = options && options.size || 8192,
 			iconv;
 	from = bind.canonicalize(from);
-	to = bind.canonicalize(to);
-	if (options.option)
-		to += options.option;
+	to[0] = bind.canonicalize(to[0]);
+	to = to.join('//');
 	iconv = new bind.Iconv(to, from);
 	return {from: from, to: to, size: size, iconv: iconv};
 }
 
-function IconvStream(options) {
-	var h = create(options);
-	this.options = options;
+function CodesStream(to, from, options) {
+	var h = create(to, from, options);
 	this._iconv = h.iconv;
 	this._input = new Buffer(h.size);
 	this._input.start = 0;
@@ -28,15 +26,15 @@ function IconvStream(options) {
 	this.readable = true;
 	this.writable = true;
 }
-util.inherits(IconvStream, stream.Stream);
+util.inherits(CodesStream, stream.Stream);
 
-IconvStream.prototype.write = function (data) {
+CodesStream.prototype.write = function (data) {
 	if (!this.writable) {
 		this.emit('error', new Error('stream not writable'))	
 		return false;
 	}
   if (!Buffer.isBuffer(data)) {
-    var encoding = 'utf8';
+    var encoding = 'UTF-8';
     if (typeof(arguments[1]) == 'string') encoding = arguments[1];
     data = new Buffer('' + data, encoding);
   }
@@ -54,7 +52,7 @@ IconvStream.prototype.write = function (data) {
 	return true;
 }
 
-IconvStream.prototype.end = function (data) {
+CodesStream.prototype.end = function (data) {
 	if (data)
 		this.write.apply(this, arguments);
 	if (this.writable) {
@@ -65,7 +63,7 @@ IconvStream.prototype.end = function (data) {
 	this.writable = false;
 }
 
-IconvStream.prototype._write = function (chunk) {
+CodesStream.prototype._write = function (chunk) {
 	var input = this._input;
 	chunk.stop = false;
 	while (chunk.length > 0 && !chunk.stop)
@@ -78,14 +76,13 @@ IconvStream.prototype._write = function (chunk) {
 	}
 }
 
-IconvStream.prototype._convert = function (chunk) {
+CodesStream.prototype._convert = function (chunk) {
 	var iconv = this._iconv;
 	var output = this._output;
 	var r = iconv.convert(chunk, output);
-	var chunkEnd = chunk.length - r.leftBytesIn;
-	var outputEnd = output.length - r.leftBytesOut;
-	var chunk = chunk.slice(chunkEnd);
-	var data = output.slice(0, outputEnd);
+	var offsetIn = r.offsetIn;
+	var chunk = chunk.slice(offsetIn);
+	var data = output.slice(0, r.offsetOut);
 	chunk.stop = true;
 	if (data.length)
 		this.emit('data', data);
@@ -98,7 +95,7 @@ IconvStream.prototype._convert = function (chunk) {
 		case 'EILSEQ':
 			var error = new Error(r.error);
 			error.code = r.errno;
-			chunk = chunk.slice(chunkEnd + 1);
+			chunk = chunk.slice(offsetIn + 1);
 			this.emit('error', error);
 			return chunk.slice(0, 0);
 			break;
@@ -112,18 +109,25 @@ IconvStream.prototype._convert = function (chunk) {
 	return chunk;
 }
 
-exports.createStream = function (options) {
-	return new IconvStream(options);
+exports.CodesStream = CodesStream;
+exports.createStream = function (to, from, options) {
+	return new CodesStream(to, from, options);
 }
-exports.convert = function (input, options) {
+exports.convert = function (input, to, from, options) {
 	if (typeof input == 'string')
-		input = new Buffer(input, 'utf8');
-	var h = create(options);
-	var output = new Buffer(input.length * 2);
+		input = new Buffer(input, 'UTF-8');
+	var h = create(to, from, options);
+	var output = new Buffer(input.length * 4);
 	var r = h.iconv.convert(input, output);
-	var outputEnd = output.length - r.leftBytesOut;
-	return output.slice(0, outputEnd);
+	return output.slice(0, r.offsetOut);
+}
+exports.encode = function (input, to, options) {
+	return this.convert(input, to, 'UTF-8', options);
+}
+exports.decode = function (input, from, options) {
+	return this.convert(input, 'UTF-8', from, options).toString();
 }
 exports.encodings = bind.encodings;
+exports.canonicalize = bind.canonicalize;
 exports.TRANSLIT = '//TRANSLIT';
 exports.IGNORE = '//IGNORE';

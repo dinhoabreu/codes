@@ -19,6 +19,6 @@ def configure(conf):
 def build(bld):
   iconv = bld.new_task_gen('cxx', 'shlib', 'node_addon')
   iconv.includes = '/usr/include /usr/local/include src'
-  iconv.target = 'iconv_binding'
-  iconv.source = 'src/iconv_binding.cc'
+  iconv.target = 'iconv'
+  iconv.source = 'src/iconv.cc'
   iconv.uselib = "iconv"

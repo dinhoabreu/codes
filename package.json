@@ -2,12 +2,14 @@
   "author": "Edison E. Abreu <dinho.abreu@gmail.com>",
   "name": "codes",
   "description": "Node.js iconv bindings - Streamable, fast and lightweight",
-  "version": "0.0.2",
+	"keywords": "iconv charset encoding encode decode convert code codes stream fast ligthweight",
+	"homepage": "https://github.com/dinhoabreu/codes",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "git@github.com:dinhoabreu/codes.git"
   },
-  "main": "lib/index.js",
+  "main": "index.js",
 	"scripts": {
 		"prepublish": "node-waf distclean && rm -rf libiconv",
 		"preinstall": "./deps.sh",
@@ -20,6 +22,6 @@
 	},
   "optionalDependencies": {},
   "engines": {
-    "node": "0.6.x"
+    "node": ">=0.6.x"
   }
 }
