@@ -3,12 +3,12 @@ var stream = require('stream');
 var util = require('util');
 
 function create(to, from, options) {
-	var from = from || 'UTF-8',
+	var from = from || 'utf8',
 			to = to.split('//'),
 			size = options && options.size || 8192,
 			iconv;
-	from = bind.canonicalize(from);
-	to[0] = bind.canonicalize(to[0]);
+	from = exports.canonicalize(from);
+	to[0] = exports.canonicalize(to[0]);
 	to = to.join('//');
 	iconv = new bind.Iconv(to, from);
 	return {from: from, to: to, size: size, iconv: iconv};
@@ -20,6 +20,7 @@ function CodesStream(to, from, options) {
 	this._input = new Buffer(h.size);
 	this._input.start = 0;
 	this._output = new Buffer(h.size);
+	this._buffer = new Buffer(0);
 	this.fromCode = h.from;
 	this.toCode = h.to;
 	this.size = h.size;
@@ -28,16 +29,42 @@ function CodesStream(to, from, options) {
 }
 util.inherits(CodesStream, stream.Stream);
 
+CodesStream.prototype.setEncoding = function (encoding) {
+	this._encoding = encoding;
+}
+
+CodesStream.prototype.pause = function () {
+	this._paused = true;
+}
+
+CodesStream.prototype.resume = function () {
+	if (this._paused) {
+		this._paused = false;
+		if (this.write(this._buffer)) {
+			this._buffer = new Buffer(0);
+			this.emit('drain')
+		}
+	}
+}
+
 CodesStream.prototype.write = function (data) {
 	if (!this.writable) {
+		this.readable = false;
 		this.emit('error', new Error('stream not writable'))	
 		return false;
 	}
   if (!Buffer.isBuffer(data)) {
-    var encoding = 'UTF-8';
+    var encoding = 'utf8';
     if (typeof(arguments[1]) == 'string') encoding = arguments[1];
     data = new Buffer('' + data, encoding);
   }
+	if (this._paused) {
+		var buffer = new Buffer(this._buffer.length + data.length);
+		this._buffer.copy(buffer);
+		data.copy(buffer, this._buffer.length);
+		this._buffer = buffer;
+		return false;
+	}
 	var input = this._input;
 	var output = this._output;
 	var start = 0;
@@ -56,17 +83,20 @@ CodesStream.prototype.end = function (data) {
 	if (data)
 		this.write.apply(this, arguments);
 	if (this.writable) {
-		if (this.error)
+		if (this.error) {
+			this.readable = false;
 			this.emit('error', this.error);
+		}
+		this.readable = false;
+		this.writable = false;
 		this.emit('end');
 	}
-	this.writable = false;
 }
 
 CodesStream.prototype._write = function (chunk) {
 	var input = this._input;
-	chunk.stop = false;
-	while (chunk.length > 0 && !chunk.stop)
+	chunk.end = false;
+	while (chunk.length > 0 && !chunk.end)
 		chunk = this._convert(chunk);
 	if (chunk.length > 0) {
 		chunk.copy(input);
@@ -76,28 +106,33 @@ CodesStream.prototype._write = function (chunk) {
 	}
 }
 
-CodesStream.prototype._convert = function (chunk) {
+CodesStream.prototype._convert = function (input) {
 	var iconv = this._iconv;
 	var output = this._output;
-	var r = iconv.convert(chunk, output);
+	var r = iconv.convert(input, output);
 	var offsetIn = r.offsetIn;
-	var chunk = chunk.slice(offsetIn);
-	var data = output.slice(0, r.offsetOut);
-	chunk.stop = true;
-	if (data.length)
-		this.emit('data', data);
+	var input = input.slice(offsetIn);
+	var output = output.slice(0, r.offsetOut);
+	input.end = true;
+	if (output.length) {
+		if (this._encoding)
+			this.emit('data', output.toString(this._encoding));
+		else
+			this.emit('data', output);
+	}
 	delete this.error;
 	if (r.code == -1) {
 		switch (r.errno) {
 		case 'E2BIG':
-			chunk.stop = false;
+			input.end = false;
 			break;
 		case 'EILSEQ':
 			var error = new Error(r.error);
 			error.code = r.errno;
-			chunk = chunk.slice(offsetIn + 1);
+			input = input.slice(offsetIn + 1);
+			this.readable = false;
 			this.emit('error', error);
-			return chunk.slice(0, 0);
+			return input.slice(0, 0);
 			break;
 		case 'EINVAL':
 			var error = new Error(r.error);
@@ -106,7 +141,7 @@ CodesStream.prototype._convert = function (chunk) {
 			break;
 		}
 	}
-	return chunk;
+	return input;
 }
 
 exports.CodesStream = CodesStream;
@@ -114,20 +149,41 @@ exports.createStream = function (to, from, options) {
 	return new CodesStream(to, from, options);
 }
 exports.convert = function (input, to, from, options) {
-	if (typeof input == 'string')
-		input = new Buffer(input, 'UTF-8');
-	var h = create(to, from, options);
-	var output = new Buffer(input.length * 4);
-	var r = h.iconv.convert(input, output);
-	return output.slice(0, r.offsetOut);
+	options = options || {};
+	options.size = Math.ceil(input.length * 4 / 8192) * 8192;
+	var stream = new CodesStream(to, from, options),
+			error, output;
+	stream.on('error', function (err) {
+		error = err;
+	});
+	stream.on('data', function (data) {
+		output = data;
+	});
+	stream.end(input);
+	if (error)
+		throw error;
+	return output;
 }
 exports.encode = function (input, to, options) {
-	return this.convert(input, to, 'UTF-8', options);
+	return this.convert(input, to, 'utf8', options);
 }
 exports.decode = function (input, from, options) {
-	return this.convert(input, 'UTF-8', from, options).toString();
+	return this.convert(input, 'utf8', from, options).toString();
 }
-exports.encodings = bind.encodings;
-exports.canonicalize = bind.canonicalize;
+exports.__defineGetter__('encodings', function () {
+	return bind.encodings;
+});
+exports.canonicalize = (function () {
+	var encodings = exports.encodings;
+	var map = {}, reg = /[_.:-]/;
+	for (var i = 0, len = encodings.length; i < len; ++i) {
+		var enc = encodings[i];
+		var key = enc.replace(reg, '').toLowerCase();
+		map[key] = bind.canonicalize(enc);
+	}
+	return function (encoding) {
+		return map[encoding.replace(reg, '').toLowerCase()];
+	}
+})();
 exports.TRANSLIT = '//TRANSLIT';
 exports.IGNORE = '//IGNORE';
