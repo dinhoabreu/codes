@@ -1,0 +1,4 @@
+.lock-wscript
+build/
+libiconv/
+node_modules/
