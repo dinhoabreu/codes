@@ -37,7 +37,7 @@ vows.describe('Convert charset by Codes').addBatch({
 					});
 					return promise;
 				},
-				"we get a Error": function (error, data) {
+				"we got a Error": function (error, data) {
 					assert.isNotNull(error);
 					assert.isUndefined(data);
 				}
@@ -61,7 +61,7 @@ vows.describe('Convert charset by Codes').addBatch({
 					});
 					return promise;
 				},
-				"we get 'a'e'i'o'uc": function (error, data) {
+				"we got 'a'e'i'o'uc": function (error, data) {
 					assert.isNull(error);
 					assert.equal(data.toString(), "'a'e'i'o'uc");
 				}
@@ -87,7 +87,7 @@ vows.describe('Convert charset by Codes').addBatch({
 					});
 					return promise;
 				},
-				"we get hex('e1e9edf3fae7')": function (error, data) {
+				"we got hex('e1e9edf3fae7')": function (error, data) {
 					assert.isNull(error);
 					assert.equal(data.toString('hex'), 'e1e9edf3fae7');
 				}
@@ -111,7 +111,7 @@ vows.describe('Convert charset by Codes').addBatch({
 					});
 					return promise;
 				},
-				"we get hex('e1e9edf3fae7')": function (error, data) {
+				"we got hex('e1e9edf3fae7')": function (error, data) {
 					assert.isNull(error);
 					assert.equal(data.toString('hex'), 'e1e9edf3fae7');
 				}
@@ -135,9 +135,30 @@ vows.describe('Convert charset by Codes').addBatch({
 				reader.pipe(stream);
 				return promise;
 			},
-			"we get hex('feff00e100e900ed00f300fa000a00e7000a')": function (error, data) {
+			"we got hex('feff00e100e900ed00f300fa000a00e7000a')": function (error, data) {
 				assert.isNull(error);
 				assert.equal(data.toString('hex'), 'feff00e100e900ed00f300fa000a00e7000a');
+			}
+		}
+	},
+	'Test Big Buffer - UTF-8 to UTF-16LE': {
+		topic: function () {
+			var c = codes.create('UTF-16LE', 'UTF-8');
+			var utf8 = new Buffer(20000000);
+			for (var i = 0; i < utf8.length; i++) {
+				utf8[i] = 97 + i % 26; // cycle from 'a' to 'z'.
+			}
+			var utf16 = c.convert(utf8);
+			return [utf8, utf16];
+		},
+		'we got a double length': function (a) {
+			assert.equal(a[1].length, a[0].length * 2);
+		},
+		'we got the same characters': function (a) {
+			var utf8 = a[0], utf16 = a[1];
+			for (i = 0; i < utf8.length; ++i) {
+				assert.equal(utf16[i * 2], utf8[i]);
+				assert.equal(utf16[i * 2 + 1], 0);
 			}
 		}
 	}

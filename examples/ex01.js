@@ -35,3 +35,8 @@ cs.end();
 var str = 'aéióuçÁEÍOÚC';
 var ascii = codes.convert(str, 'ASCII//TRANSLIT', 'UTF-8');
 console.log(str + ' => ' + ascii.toString());
+
+// convert from UTF-8 to UTF-16LE
+var cds = codes.create('utf16le', 'utf8');
+var utf16 = cds.convert(new Buffer(str));
+console.log(utf16);

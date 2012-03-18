@@ -144,10 +144,34 @@ CodesStream.prototype._convert = function (input) {
 	return input;
 }
 
+function Codes(to, from, options) {
+	var h = create(to, from, options);
+	this.toCode = h.to;
+	this.fromCode = h.from;
+	this.size = h.size;
+	this._iconv = h.iconv;
+}
+
+Codes.prototype.convert = function (input) {
+	var output = new Buffer(input.length * 4),
+			r = this._iconv.convert(input, output);
+	if (r.code == -1)
+		throw new Error(r.error);
+	return output.slice(0, r.offsetOut);
+}
+
 exports.CodesStream = CodesStream;
+
+exports.Codes = Codes;
+
 exports.createStream = function (to, from, options) {
 	return new CodesStream(to, from, options);
 }
+
+exports.create = function (to, from, options) {
+	return new Codes(to, from, options);
+}
+
 exports.convert = function (input, to, from, options) {
 	options = options || {};
 	options.size = Math.ceil(input.length * 4 / 8192) * 8192;
