@@ -9,6 +9,7 @@ def set_options(opt):
   opt.tool_options('compiler_cxx')
 
 def configure(conf):
+  conf.env.append_value('CXXFLAGS', ['-Wall', '-O2'])
   depdir = abspath('libiconv')
   incdir = join(depdir,'include')
   libdir = join(depdir,'lib')
