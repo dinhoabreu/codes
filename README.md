@@ -9,7 +9,8 @@ Node.js iconv bindings - Streamable, fast and lightweight
 ## Usage
 
 Encode from one character encoding to another:
-```js
+
+```javascript
 var assert = require('assert');
 var codes = require('../index');
 
