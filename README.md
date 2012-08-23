@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/dinhoabreu/codes.png)](http://travis-ci.org/dinhoabreu/codes)
 # codes
 
 Node.js iconv bindings - Streamable, fast and lightweight
