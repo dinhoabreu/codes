@@ -5,7 +5,7 @@ Node.js iconv bindings - Streamable, fast and lightweight
 
 ## Installing with [npm](http://npmjs.org/)
 
-	npm install codes
+npm install codes
 
 ## Usage
 
