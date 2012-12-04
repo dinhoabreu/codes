@@ -2,7 +2,7 @@
   "author": "Edison E. Abreu <dinho.abreu@gmail.com>",
   "name": "codes",
   "description": "Node.js iconv bindings - Streamable, fast and lightweight",
-  "keywords": "iconv charset encoding encode decode convert code codes stream fast ligthweight",
+  "keywords": ["iconv", "charset", "encoding", "encode", "decode", "convert", "code", "codes", "stream", "fast", "ligthweight"],
   "homepage": "https://github.com/dinhoabreu/codes",
   "version": "0.2.0",
   "repository": {
