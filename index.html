@@ -1,0 +1,119 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Codes</title>
+  <meta name="description" content="Node.js iconv bindings - Streamable, fast and lightweight">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Codes</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">Node.js iconv bindings - Streamable, fast and lightweight</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/dinhoabreu/codes/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/dinhoabreu/codes/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/dinhoabreu/codes" class="code">View Codes on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <p><a href="http://travis-ci.org/dinhoabreu/codes"><img src="https://secure.travis-ci.org/dinhoabreu/codes.png" alt="build status"></a></p>
+
+<h1>codes</h1>
+
+<p>Node.js iconv bindings - Streamable, fast and lightweight</p>
+
+<h2>Installing with <a href="http://npmjs.org/">npm</a>
+</h2>
+
+<p>npm install codes</p>
+
+<h2>Usage</h2>
+
+<p>Encode from one character encoding to another:</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">assert</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'assert'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">codes</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'../index'</span><span class="p">);</span>
+
+<span class="c1">// convert from UTF-8 to ISO-8859-1</span>
+<span class="kd">var</span> <span class="nx">str</span> <span class="o">=</span> <span class="s1">'É isso ai. Testando acentuação: áéíóú...'</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">buffer</span> <span class="o">=</span> <span class="nx">codes</span><span class="p">.</span><span class="nx">encode</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="s1">'ISO-8859-1//TRANSLIT'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">str2</span> <span class="o">=</span> <span class="nx">codes</span><span class="p">.</span><span class="nx">decode</span><span class="p">(</span><span class="nx">buffer</span><span class="p">,</span> <span class="s1">'ISO-8859-1'</span><span class="p">);</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="nx">str2</span><span class="p">);</span>
+
+<span class="c1">// stream from LATIN1 to UTF-8 </span>
+<span class="kd">var</span> <span class="nx">cs</span> <span class="o">=</span> <span class="nx">codes</span><span class="p">.</span><span class="nx">createStream</span><span class="p">(</span><span class="s1">'UTF-8'</span><span class="p">,</span> <span class="s1">'LATIN1'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">str4</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'data'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">str3</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">toString</span><span class="p">();</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">str3</span><span class="p">);</span>
+    <span class="nx">str4</span> <span class="o">+=</span> <span class="nx">str3</span><span class="p">;</span>
+<span class="p">});</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'end'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">str4</span><span class="p">,</span> <span class="nx">str</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">str4</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'error'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">));</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">8</span><span class="p">));</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">16</span><span class="p">));</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">24</span><span class="p">));</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">28</span><span class="p">));</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">32</span><span class="p">));</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">buffer</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">32</span><span class="p">));</span>
+<span class="nx">cs</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
+
+<span class="c1">// convert from UTF-8 to ASCII</span>
+<span class="kd">var</span> <span class="nx">str</span> <span class="o">=</span> <span class="s1">'aéióuçÁEÍOÚC'</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">ascii</span> <span class="o">=</span> <span class="nx">codes</span><span class="p">.</span><span class="nx">convert</span><span class="p">(</span><span class="nx">str</span><span class="p">,</span> <span class="s1">'ASCII//TRANSLIT'</span><span class="p">,</span> <span class="s1">'UTF-8'</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">str</span> <span class="o">+</span> <span class="s1">' =&gt; '</span> <span class="o">+</span> <span class="nx">ascii</span><span class="p">.</span><span class="nx">toString</span><span class="p">());</span>
+
+<span class="c1">// convert from UTF-8 to UTF-16LE</span>
+<span class="kd">var</span> <span class="nx">cds</span> <span class="o">=</span> <span class="nx">codes</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="s1">'utf16le'</span><span class="p">,</span> <span class="s1">'utf8'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">utf16</span> <span class="o">=</span> <span class="nx">cds</span><span class="p">.</span><span class="nx">convert</span><span class="p">(</span><span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="nx">str</span><span class="p">));</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">utf16</span><span class="p">);</span>
+</pre></div>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/dinhoabreu" class="avatar"><img src="https://secure.gravatar.com/avatar/7d044ae508069d041fa538d6b364be35?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="48" height="48"/></a> <a href="https://github.com/dinhoabreu">dinhoabreu</a> maintains <a href="https://github.com/dinhoabreu/codes">Codes</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="http://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/dinhoabreu/codes/tarball/master" class="tar">tar</a><a href="https://github.com/dinhoabreu/codes/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
