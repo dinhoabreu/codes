@@ -19,7 +19,7 @@ fi
 
 cd deps/libiconv-1.14/
 if [ ! -f Makefile ]; then
-	./configure --prefix=$PREFIX --enable-static --enable-extra-encodings
+	./configure --prefix=$PREFIX --enable-static --enable-extra-encodings --with-pic
 fi;
 make -s && make -s install
 cd -
