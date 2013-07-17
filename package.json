@@ -15,10 +15,10 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "vows": "0.6.x"
+    "vows": ">=0.6.0"
   },
   "optionalDependencies": {},
   "engines": {
-    "node": ">=0.8.x"
+    "node": ">=0.8.0"
   }
 }
