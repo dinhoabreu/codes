@@ -1,0 +1,3 @@
+deps/libiconv-1.14/tests/
+build/
+.npmignore

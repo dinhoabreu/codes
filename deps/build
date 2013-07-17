@@ -1,0 +1,9 @@
+#!/bin/bash
+PREFIX=$(pwd)/build/deps
+mkdir build/deps
+cd deps/libiconv-1.14/
+if [ ! -f Makefile ]; then
+	./configure --prefix=$PREFIX --enable-static --enable-extra-encodings --with-pic
+fi;
+make -s && make -s install && make -s distclean
+cd -

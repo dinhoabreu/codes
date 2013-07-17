@@ -6,7 +6,7 @@
                 'src/iconv.cc'
             ],
             'include_dirs': [
-                'libiconv/include'
+                'build/deps/include'
             ],
             'cflags_cc': [
                 '-fexceptions'
@@ -15,7 +15,7 @@
                 '-fexceptions'
             ],
             'libraries': [
-                '../libiconv/lib/libiconv.a'
+                'deps/lib/libiconv.a'
             ],
             'conditions': [
                 ['OS=="mac"', {
@@ -23,6 +23,14 @@
                         'GCC_ENABLE_CPP_EXCEPTIONS': 'YES'
                     }
                 }]
+            ],
+            'actions': [
+                {
+                    'action_name': 'deps_build',
+                    'inputs': ['deps/build'],
+                    'outputs': ['deps/lib/libiconv.a'],
+                    'action': ['deps/build']
+                }
             ]
         }
     ]
