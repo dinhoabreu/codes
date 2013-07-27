@@ -22,11 +22,11 @@ int main() {
     printf("return %ld %ld > %ld\n", r, inbytesleft, outbytesleft);
     if (r == -1) {
         if (errno == E2BIG)
-            printf("E2BIG: There is not sufficient room at *outbuf\n", errno);
+            printf("E2BIG: There is not sufficient room at *outbuf\n");
         else if (errno == EILSEQ)
-            printf("EILSEQ: An invalid multibyte sequence has been encountered in the input\n", errno);
+            printf("EILSEQ: An invalid multibyte sequence has been encountered in the input\n");
         else if (errno == EINVAL)
-            printf("EINVAL: An incomplete multibyte sequence has been encountered in the input\n", errno);
+            printf("EINVAL: An incomplete multibyte sequence has been encountered in the input\n");
     }
     return 0;
 }
