@@ -39,7 +39,9 @@ class Iconv {
         }
 
         size_t convert(char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft) {
-            return iconv(cd, inbuf, inbytesleft, outbuf, outbytesleft);
+            size_t r;
+            r = iconv(cd, inbuf, inbytesleft, outbuf, outbytesleft);
+            return (r == (size_t)(-1)) ? r : iconv(cd, NULL, NULL, outbuf, outbytesleft);
         }
 
         static void Initialize(Handle<Object> target) {

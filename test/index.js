@@ -161,5 +161,29 @@ vows.describe('Convert charset by Codes').addBatch({
 				assert.equal(utf16[i * 2 + 1], 0);
 			}
 		}
+	},
+	'UTF-8 to UTF-7 (bug reported by welwood08)': {
+		'"test"': {
+			topic: function () {
+				return codes.create('UTF-7', 'UTF-8');
+			},
+			'we got +ACI-test+ACI-': function (c) {
+				var input = new Buffer('"test"', 'utf8');
+				var output = c.convert(input);
+				assert.equal('+ACI-test+ACI-', output.toString('ascii'));
+			}
+		}
+	},
+	'UTF-7 to UTF-8 (bug reported by welwood08)': {
+		'+ACI-test+ACI-': {
+			topic: function () {
+				return codes.create('UTF-8', 'UTF-7');
+			},
+			'we got "test"': function (c) {
+				var input = new Buffer('+ACI-test+ACI-', 'ascii');
+				var output = c.convert(input);
+				assert.equal('"test"', output.toString());
+			}
+		}
 	}
 }).export(module);
